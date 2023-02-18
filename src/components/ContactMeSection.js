@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useFormik } from "formik";
-import { object, string, number, date, InferType } from 'yup';
+import { string } from 'yup';
 import {
   Box,
   Button,
@@ -12,6 +12,7 @@ import {
   Select,
   Textarea,
   VStack,
+  Spinner,
 } from "@chakra-ui/react";
 import * as Yup from 'yup';
 import FullScreenSection from "./FullScreenSection";
@@ -22,21 +23,29 @@ const LandingSection = () => {
   const { isLoading, response, submit } = useSubmit();
   const { onOpen } = useAlertContext();
 
+  useEffect(() => {
+    if (response) {
+      onOpen(response.type, response.message);
+    }
+
+
+  }, [response]);
+
   const formik = useFormik({
     initialValues: {
       firstName: '',
       email: '',
-      type: '',
+      type: 'Freelance project proposal',
       comment: ''
     },
     onSubmit: (values) => {
-      values.preventDefault();
-      submit()
+      submit('', values);
+
 
     },
     validationSchema: Yup.object({
       firstName: string().required('Required'),
-      email: string().email('Required'),
+      email: string().email().required('Required'),
       type: string().required('Required'),
       comment: string().required('Required'),
 
@@ -57,18 +66,21 @@ const LandingSection = () => {
         <Box p={6} rounded="md" w="100%">
           <form onSubmit={formik.handleSubmit}>
             <VStack spacing={4}>
-              <FormControl isInvalid={false}>
+              <FormControl isInvalid={formik.errors.firstName && formik.touched.firstName}>
                 <FormLabel htmlFor="firstName">Name</FormLabel>
                 <Input
                   id="firstName"
                   name="firstName"
                   {...formik.getFieldProps('firstName')}
+
                 />
                 <FormErrorMessage>
-
+                  {formik.touched.firstName && formik.errors.firstName ? (
+                    <div>{formik.errors.firstName}</div>
+                  ) : null}
                 </FormErrorMessage>
               </FormControl>
-              <FormControl isInvalid={false}>
+              <FormControl isInvalid={formik.errors.email && formik.touched.email}>
                 <FormLabel htmlFor="email">Email Address</FormLabel>
                 <Input
                   id="email"
@@ -76,19 +88,19 @@ const LandingSection = () => {
                   type="email"
                   {...formik.getFieldProps('email')}
                 />
-                <FormErrorMessage></FormErrorMessage>
+                <FormErrorMessage>
+                  {formik.touched.email && formik.errors.email ? formik.errors.email : null}
+                </FormErrorMessage>
               </FormControl>
               <FormControl>
                 <FormLabel htmlFor="type">Type of enquiry</FormLabel>
                 <Select id="type" name="type"  {...formik.getFieldProps('type')}>
                   <option value="hireMe">Freelance project proposal</option>
-                  <option value="openSource">
-                    Open source consultancy session
-                  </option>
+                  <option value="openSource">Open source consultancy session</option>
                   <option value="other">Other</option>
                 </Select>
               </FormControl>
-              <FormControl isInvalid={false}>
+              <FormControl isInvalid={formik.errors.comment && formik.touched.comment}>
                 <FormLabel htmlFor="comment">Your message</FormLabel>
                 <Textarea
                   id="comment"
@@ -96,9 +108,11 @@ const LandingSection = () => {
                   height={250}
                   {...formik.getFieldProps('comment')}
                 />
-                <FormErrorMessage></FormErrorMessage>
+                <FormErrorMessage>
+                  {formik.touched.comment && formik.errors.comment ? formik.errors.comment : null}
+                </FormErrorMessage>
               </FormControl>
-              <Button type="submit" colorScheme="purple" width="full">
+              <Button type="submit" colorScheme="purple" width="full" isLoading={isLoading}>
                 Submit
               </Button>
             </VStack>
