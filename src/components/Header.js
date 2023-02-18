@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -44,6 +44,23 @@ const Header = () => {
     }
   };
 
+  const [showBox, setShowBox] = useState(true);
+  const prevScrollY = useRef(0);
+  useEffect(() => {
+    function handleScroll() {
+      const currentScrollY = window.scrollY;
+      if (prevScrollY.current < currentScrollY & showBox) {
+        setShowBox(false)
+      }
+      else if (prevScrollY.current > currentScrollY & !showBox) {
+        setShowBox(true)
+      }
+      prevScrollY.current = currentScrollY;
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [showBox])
+
   return (
     <Box
       position="fixed"
@@ -56,7 +73,7 @@ const Header = () => {
       transitionTimingFunction="ease-in-out"
       backgroundColor="#18181b"
     >
-      <Box color="white" maxWidth="1280px" margin="0 auto">
+      <Box style={{ display: showBox ? 'block' : 'none' }} color="white" maxWidth="1280px" margin="0 auto">
         <HStack
           px={16}
           py={4}

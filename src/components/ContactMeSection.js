@@ -113,7 +113,7 @@ const LandingSection = () => {
                 </FormErrorMessage>
               </FormControl>
               <Button type="submit" colorScheme="purple" width="full" isLoading={isLoading}>
-                Submit
+                {isLoading ? <Spinner /> : "submit"}
               </Button>
             </VStack>
           </form>
